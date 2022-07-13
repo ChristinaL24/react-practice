@@ -35,8 +35,9 @@ function TodoForm({addTodo}) {
   )
 }
 
+// todos = this.state, and setTodos = this.setState
 function App() {
-  const [todos, setTodos] = useState([
+  const [todos, setTodos] = useState([ // array of todo objects
     {
       text: 'Learn about React',
       isCompleted: false
