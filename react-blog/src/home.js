@@ -1,29 +1,38 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import BlogList from './blog-list';
 
 const Home = () => {
-  // // let name = 'mario';
-  // const [name, setName] = useState('mario');
-  // const [age, setAge] = useState(25);
 
-  // const handleClick = () => {
-  //   setName('luigi');
-  //   setAge(30);
-  // }
+  const [blogs, setBlogs] = useState(null);
+  const [isPending, setIsPending] = useState(true);
+  const [error, setError] = useState(null);
 
-  const [blogs, setBlogs] = useState([
-    { title: 'My new website', body: 'lorem ipsum...', author: 'mario', id: 1 },
-    { title: 'Welcome party!', body: 'lorem ipsum...', author: 'yoshi', id: 2 },
-    { title: 'Web dev top tips', body: 'lorem ipsum...', author: 'mario', id: 3 }
-  ]);
+  useEffect(() => { // do not store w/ a const; runs code on every render
+    setTimeout(() => {
+      fetch('http://localhost:8000/blogs')
+        .then(res => {
+          if (!res.ok) {
+            throw Error('Could not fetch the data for that resource');
+          }
+            return res.json();
+        })
+        .then((data) => {
+          setBlogs(data);
+          setIsPending(false);
+          setError(null);
+        })
+        .catch(err => {
+          setIsPending(false);
+          setError(err.message);
+        })
+    }, 1000)
+  }, []); // [] - empty dependency array only runs the function after first intial render; wont run function again
 
   return (
     <div className="home">
-      {blogs.map((blog) => (
-        <div className="blog-preview" key={blog.id}>
-          <h2>{ blog.title }</h2>
-          <p>Written by { blog.author }</p>
-        </div>
-      ))}
+      { error && <div>{ error }</div> }
+      { isPending && <div>Loading...</div> }
+      { blogs && <BlogList blogs={blogs} title="All Blogs!" /> }
     </div>
   );
 }
